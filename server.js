@@ -15,7 +15,7 @@ app.use(cors({ origin: process.env.FRONTEND_ORIGIN || '*' }));
 app.use(helmet());
 app.use(express.json());
 app.use('/api/drivers', driverRoutes);
-app.get('/health', (req, res) => res.json({ status: 'running', time: new Date() }));
+app.get('/health', (_req, res) => res.json({ status: 'running', time: new Date() }));
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: process.env.FRONTEND_ORIGIN || '*', methods: ['GET', 'POST'] } });
@@ -27,9 +27,7 @@ io.on('connection', (socket) => {
     await Driver.update({ isAvailable: true }, { where: { id: driverId } });
   });
 
-  socket.on('join_tracking_room', (driverId) => {
-    socket.join(`track_driver_${driverId}`);
-  });
+  socket.on('join_tracking_room', (driverId) => socket.join(`track_driver_${driverId}`));
 
   socket.on('update_location', async ({ driverId, lat, lng }) => {
     if (!driverId || lat == null || lng == null) return;
@@ -38,11 +36,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', async () => {
-    for (const [driverId, info] of activeDrivers.entries()) {
-      if (info.socketId === socket.id) {
+    for (const [driverId, data] of activeDrivers.entries()) {
+      if (data.socketId === socket.id) {
         activeDrivers.delete(driverId);
         await Driver.update({ isAvailable: false }, { where: { id: driverId } });
-        break;
       }
     }
   });
@@ -53,10 +50,8 @@ async function start() {
   await sequelize.query('CREATE EXTENSION IF NOT EXISTS postgis;');
   await sequelize.sync({ alter: true });
   const port = process.env.PORT || 3000;
-  server.listen(port, () => console.log(`Backend running on port ${port}`));
+  server.listen(port, () => console.log(`Planet Logistics backend on ${port}`));
 }
 
-start().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+start().catch(console.error);
+module.exports = { io, activeDrivers };

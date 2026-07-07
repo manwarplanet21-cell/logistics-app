@@ -1,21 +1,30 @@
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'app_config.dart';
 
 class SocketService {
-  late final IO.Socket socket;
+  late final io.Socket socket;
 
   void connect() {
-    socket = IO.io(
+    socket = io.io(
       AppConfig.serverUrl,
-      IO.OptionBuilder()
-          .setTransports(['websocket'])
-          .disableAutoConnect()
-          .build(),
+      io.OptionBuilder().setTransports(['websocket']).disableAutoConnect().build(),
     );
     socket.connect();
   }
 
-  void disconnect() {
+  void joinTracking(String driverId) {
+    socket.emit('join_tracking_room', driverId);
+  }
+
+  void driverOnline(String driverId) {
+    socket.emit('driver_online', driverId);
+  }
+
+  void sendLocation(String driverId, double lat, double lng) {
+    socket.emit('update_location', {'driverId': driverId, 'lat': lat, 'lng': lng});
+  }
+
+  void dispose() {
     socket.disconnect();
     socket.dispose();
   }

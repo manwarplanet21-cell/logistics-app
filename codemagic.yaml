@@ -1,12 +1,13 @@
 workflows:
   android-debug:
     name: Android Debug APK
-    max_build_duration: 60
+    max_build_duration: 30
     environment:
       flutter: stable
     scripts:
+      - cd flutter_app
       - flutter create --platforms=android .
       - flutter pub get
       - flutter build apk --debug --dart-define=SERVER_URL=http://YOUR_SERVER_IP:3000
     artifacts:
-      - build/app/outputs/flutter-apk/app-debug.apk
+      - flutter_app/build/app/outputs/flutter-apk/app-debug.apk

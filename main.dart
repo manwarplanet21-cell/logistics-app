@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const PlanetLogisticsApp());
 }
 
@@ -13,9 +12,9 @@ class PlanetLogisticsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Planet Logistics',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      title: 'Planet Logistics',
+      theme: AppTheme.light,
       home: const HomeScreen(),
     );
   }
